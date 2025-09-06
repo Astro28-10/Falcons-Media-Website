@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Falcons Gallery - Authentication</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/img/fal.jpeg') center center;
+      background-size: cover;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    .auth-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo {
+      margin-bottom: 2rem;
+    }
+
+    .logo img {
+      height: 80px;
+      width: auto;
+      filter: brightness(0);
+      opacity: 0.8;
+    }
+
+    .auth-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .auth-subtitle {
+      color: #666;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      font-weight: 400;
+    }
+
+    .input-group {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    #authInput {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 2px solid #e5e5e5;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+      text-align: center;
+      letter-spacing: 0.2em;
+    }
+
+    #authInput:focus {
+      outline: none;
+      border-color: #000;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #authInput::placeholder {
+      color: #999;
+      letter-spacing: normal;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: #000;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+    }
+
+    .submit-btn:hover {
+      background: #333;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      display: none;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Subtle animations */
+    .auth-container {
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+      }
+      
+      .auth-title {
+        font-size: 1.5rem;
+      }
+      
+      .logo img {
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="logo">
+      <img src="/img/falconsblack.png" alt="Falcons Logo" />
+    </div>
+    
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-subtitle">Enter your authentication code to continue</p>
+    
+    <div class="input-group">
+      <input type="password" id="authInput" placeholder="Authentication Code" autocomplete="off" />
+    </div>
+    
+    <button class="submit-btn" onclick="checkCode()">
+      Access Gallery
+    </button>
+    
+    <div class="error-message" id="errorMessage">
+      Invalid authentication code. Please try again.
+    </div>
+  </div>
+
+  <script>
+    const SITE_PIN = "1946";
+
+    function checkCode() {
+      const input = document.getElementById("authInput");
+      const errorMessage = document.getElementById("errorMessage");
+      const value = input.value.trim();
+      
+      if (value === SITE_PIN) {
+        // Success animation
+        input.style.borderColor = "#22c55e";
+        input.style.background = "rgba(34, 197, 94, 0.1)";
+        
+        setTimeout(() => {
+          window.location.href = "/index1.html";
+        }, 200);
+      } else {
+        // Error animation
+        input.style.borderColor = "#ef4444";
+        input.style.background = "rgba(239, 68, 68, 0.1)";
+        errorMessage.style.display = "block";
+        
+        // Shake animation
+        input.style.animation = "shake 0.5s ease-in-out";
+        
+        setTimeout(() => {
+          input.style.borderColor = "#e5e5e5";
+          input.style.background = "rgba(255, 255, 255, 0.8)";
+          input.style.animation = "";
+          errorMessage.style.display = "none";
+          input.value = "";
+          input.focus();
+        }, 2000);
+      }
+    }
+
+    // Handle Enter key
+    document.getElementById("authInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        checkCode();
+      }
+    });
+
+    // Auto-focus input
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("authInput").focus();
+    });
+
+    // Add shake animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

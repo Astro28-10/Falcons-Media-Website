@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Falcons Gallery - Events</title>
+    
+    <!-- Fonts & Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/index-style.css" />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <nav class="nav">
+          <div class="nav-left">
+            <img src="/img/falconswhite.png" alt="Falcons Logo" class="logo">
+          </div>
+          
+          <div class="nav-right">
+            <a href="/aboutus.html" class="nav-link">
+              <span>Our Team</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-main">
+      <div class="container">
+        <div class="hero-content-main">
+          <h1 class="main-title">Capture. Create. Celebrate.</h1>
+          <p class="main-subtitle">Experience our events through stunning photography</p>
+          <div class="hero-divider"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Events Gallery -->
+    <section class="gallery-section">
+      <div class="container">
+        <div class="gallery-header">
+          <h2 class="gallery-title">Event Galleries</h2>
+          <p class="gallery-subtitle">Browse through our collection of memorable moments</p>
+        </div>
+        
+        <div class="events-grid" id="eventsGrid">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading galleries...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-left">
+            <img src="/img/falconsblack.png" alt="Falcons Logo" class="footer-logo">
+            <div class="footer-text">
+              <p class="footer-brand">Falcons of BMSCE</p>
+              <p class="footer-copyright">© 2025 All rights reserved</p>
+            </div>
+          </div>
+          
+          <div class="footer-right">
+            <div class="social-links">
+              <a href="https://www.instagram.com/falcons.of.bmsce/" class="social-link" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="https://www.linkedin.com/company/falcons-of-bmsce/" class="social-link" aria-label="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Event Loading Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        loadEvents();
+      });
+
+      async function loadEvents() {
+        const eventsGrid = document.getElementById("eventsGrid");
+        
+        try {
+          const response = await fetch("/api/events");
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const events = await response.json();
+
+          if (!events || events.length === 0) {
+            eventsGrid.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <i class="fas fa-images"></i>
+                </div>
+                <h3 class="empty-title">No galleries available</h3>
+                <p class="empty-text">Check back later for new photo galleries</p>
+              </div>
+            `;
+            return;
+          }
+
+          // Create event cards
+          eventsGrid.innerHTML = events.map(event => {
+            const date = new Date(event.createdTime || Date.now()).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+
+            return `
+              <div class="event-card">
+                <a href="/event.html?folder=${encodeURIComponent(event.name)}" class="event-link">
+                  <div class="event-image">
+                    ${event.coverId 
+                      ? `<img src="/api/imageproxy/${event.coverId}?size=w400" alt="${event.name}" loading="lazy">` 
+                      : `<div class="event-placeholder"><i class="fas fa-images"></i></div>`
+                    }
+                  </div>
+                  <div class="event-info">
+                    <h3 class="event-title">${event.name}</h3>
+                    <p class="event-date">${date}</p>
+                  </div>
+                </a>
+              </div>
+            `;
+          }).join("");
+
+        } catch (error) {
+          console.error("Error loading events:", error);
+          eventsGrid.innerHTML = `
+            <div class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <h3>Failed to load events</h3>
+              <p>Please try again later</p>
+            </div>
+          `;
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Gallery</title>
+    
+    <!-- Fonts & Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- LightGallery CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lg-zoom.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lg-thumbnail.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css" />
+    
+    <style>
+      /* Disable LightGallery clicks in selection mode */
+      .gallery.selection-mode .gallery-item {
+        cursor: pointer !important;
+      }
+      
+      .gallery.selection-mode .gallery-item:hover .gallery-item-overlay {
+        opacity: 0 !important;
+      }
+      
+      /* Make checkboxes more prominent in selection mode */
+      .selection-mode .selection-checkbox {
+        z-index: 1000 !important;
+        pointer-events: auto !important;
+      }
+      
+      .selection-mode .gallery-item {
+        position: relative;
+      }
+      
+      .selection-mode .gallery-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 999;
+        background: transparent;
+        pointer-events: none;
+      }
+      
+      /* Folder styling */
+      .gallery-item.folder-item {
+        cursor: pointer;
+      }
+      
+      .gallery-item.folder-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
+      
+      .folder-cover {
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .folder-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+      }
+      
+      .folder-overlay {
+        background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+      }
+      
+      .folder-name {
+        font-weight: 600;
+        margin-left: 8px;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <nav class="nav">
+          <div class="nav-left">
+            <a href="/" class="logo-link">
+              <img src="/img/falconswhite.png" alt="Falcons Logo" class="logo">
+            </a>
+          </div>
+          
+          <div class="nav-right">
+            <a href="/" class="nav-link">
+              <i class="fas fa-arrow-left"></i>
+              <span>Back to Gallery</span>
+            </a>
+            <a href="/aboutus.html" class="nav-link">
+              <i class="fas fa-users"></i>
+              <span>Team</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Event Header -->
+    <section class="event-header">
+      <div class="container">
+        <div class="event-header-content">
+          <div class="header-left">
+            <h1 id="event-name" class="event-title">Loading...</h1>
+            <p class="event-subtitle">Event Photo Gallery</p>
+          </div>
+          
+          <div class="gallery-controls">
+            <button id="refreshBtn" class="control-btn">
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Content -->
+    <main class="photo-gallery">
+      <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading gallery...</p>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div id="gallery" class="gallery-grid" style="display: none;">
+          <!-- Dynamic gallery content will be inserted here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-left">
+            <img src="/img/falconsblack.png" alt="Falcons Logo" class="footer-logo">
+            <div class="footer-text">
+              <p class="footer-brand">Falcons of BMSCE</p>
+              <p class="footer-copyright">© 2025 All rights reserved</p>
+            </div>
+          </div>
+          
+          <div class="footer-right">
+            <div class="social-links">
+              <a href="https://www.instagram.com/falcons.of.bmsce/" class="social-link" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="https://www.linkedin.com/company/falcons-of-bmsce/" class="social-link" aria-label="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- LightGallery JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/lightgallery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/plugins/zoom/lg-zoom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/plugins/thumbnail/lg-thumbnail.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="/js/event.js"></script>
+  </body>
+</html>
