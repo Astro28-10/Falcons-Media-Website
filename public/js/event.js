@@ -645,16 +645,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!selectMode) {
       try {
         galleryInstance = lightGallery(galleryEl, {
-          plugins: [lgZoom, lgThumbnail],
+          plugins: [lgZoom], // Removed lgThumbnail plugin
           speed: 400,
-          download: true,
+          download: true, // Disabled download button
           counter: true,
           getCaptionFromTitleOrAlt: false,
-          thumbnail: true,
-          animateThumb: true,
+          thumbnail: false, // Disabled thumbnail strip
+          animateThumb: false,
           zoomFromOrigin: false,
           allowMediaOverlap: true,
-          toggleThumb: true,
+          toggleThumb: false, // Disabled thumbnail toggle
           selector: '.gallery-item.photo-item' // Only target photo items, not folders
         });
       } catch (error) {
