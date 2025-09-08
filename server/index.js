@@ -435,18 +435,24 @@ app.post("/api/folders/:parentId/create", async (req, res) => {
   }
 });
 
-// List contents (folders and images) of any folder
+// List contents (folders and images) of any folder with proper Google Drive pagination
 app.get("/api/folders/:folderId/contents", async (req, res) => {
   try {
-    const response = await drive.files.list({
-      q: `'${req.params.folderId}' in parents`,
-      fields: "files(id,name,mimeType,createdTime,appProperties)",
-      orderBy: "createdTime desc",
-    });
-    const items = await Promise.all(
-      response.data.files.map(async (item) => {
-        if (item.mimeType === "application/vnd.google-apps.folder") {
-          // Check for images inside this folder for coverId
+    const requestedPage = parseInt(req.query.page) || 1;
+    const imagePageSize = 40;
+    
+    // First, get all folders (these are not paginated, always show on first page)
+    let folders = [];
+    if (requestedPage === 1) {
+      const foldersResponse = await drive.files.list({
+        q: `'${req.params.folderId}' in parents and mimeType='application/vnd.google-apps.folder'`,
+        fields: "files(id,name,mimeType,createdTime,appProperties)",
+        orderBy: "createdTime desc",
+        pageSize: 1000
+      });
+      
+      folders = await Promise.all(
+        foldersResponse.data.files.map(async (item) => {
           const images = await drive.files.list({
             q: `'${item.id}' in parents and mimeType contains 'image/'`,
             pageSize: 1,
@@ -459,20 +465,65 @@ app.get("/api/folders/:folderId/contents", async (req, res) => {
             coverId,
             folderIcon: coverId ? null : getFolderIcon(item.name),
           };
-        } else if (item.mimeType.includes("image/")) {
-          return {
-            ...item,
-            type: "image",
-            thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w400-h400`,
-            downloadUrl: `https://drive.google.com/uc?export=download&id=${item.id}`,
-          };
-        } else {
-          return null;
-        }
-      })
-    );
-    res.json(items.filter(Boolean));
+        })
+      );
+    }
+    
+    // Now get all images by fetching multiple pages from Google Drive if needed
+    let allImages = [];
+    let nextPageToken = null;
+    let totalImagesFetched = 0;
+    let targetImages = requestedPage * imagePageSize;
+    
+    // Keep fetching from Google Drive until we have enough images for the requested page
+    do {
+      const imagesResponse = await drive.files.list({
+        q: `'${req.params.folderId}' in parents and mimeType contains 'image/'`,
+        fields: "nextPageToken,files(id,name,mimeType,createdTime,appProperties)",
+        orderBy: "createdTime desc",
+        pageSize: 100, // Google Drive max
+        pageToken: nextPageToken
+      });
+      
+      const images = imagesResponse.data.files.map(item => ({
+        ...item,
+        type: "image",
+        thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w400-h400`,
+        downloadUrl: `https://drive.google.com/uc?export=download&id=${item.id}`,
+      }));
+      
+      allImages = [...allImages, ...images];
+      nextPageToken = imagesResponse.data.nextPageToken;
+      totalImagesFetched = allImages.length;
+      
+      // Continue fetching if we haven't reached the target page yet and there are more images
+    } while (nextPageToken && totalImagesFetched < targetImages);
+    
+    // Calculate pagination info
+    const totalImages = nextPageToken ? totalImagesFetched + 1 : totalImagesFetched; // +1 if there are more we haven't fetched
+    const totalPages = Math.ceil(totalImages / imagePageSize);
+    const startIndex = (requestedPage - 1) * imagePageSize;
+    const endIndex = startIndex + imagePageSize;
+    
+    // Get images for the requested page
+    const pageImages = allImages.slice(startIndex, endIndex);
+    
+    // Determine if there are more images beyond what we've fetched
+    const hasMoreImages = nextPageToken || (totalImagesFetched > endIndex);
+    
+    res.json({
+      items: [...folders, ...pageImages],
+      pagination: {
+        currentPage: requestedPage,
+        totalPages: hasMoreImages ? Math.max(totalPages, requestedPage + 1) : totalPages,
+        totalImages: hasMoreImages ? `${totalImages}+` : totalImages,
+        hasMore: hasMoreImages,
+        imagesPerPage: imagePageSize
+      }
+    });
+    
   } catch (error) {
+    console.error("Error listing folder contents:", error);
     res.status(500).json({ error: "Failed to list folder contents" });
   }
 });

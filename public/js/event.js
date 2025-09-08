@@ -13,6 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentFolderId = null;
   let selectMode = false;
   let selectedItems = new Set();
+  let currentPage = 0;
+  let totalPages = 0;
+  let hasMoreImages = false;
+  let totalImages = 0;
+  let allFolders = [];
+  let currentPageImages = [];
 
   // Set event name
   const displayName = folderName || 'Gallery';
@@ -25,6 +31,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if (refreshBtn) {
     refreshBtn.addEventListener("click", () => {
       refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading...</span>';
+      // Reset pagination state
+      currentPage = 1;
+      hasMoreImages = false;
+      totalImages = 0;
+      totalPages = 0;
+      allFolders = [];
+      currentPageImages = [];
+      // Hide pagination section
+      const paginationSection = document.getElementById('paginationSection');
+      if (paginationSection) {
+        paginationSection.style.display = 'none';
+      }
       loadEventGallery();
     });
   }
@@ -42,6 +60,84 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error('Error finding folder ID:', error);
       return null;
     }
+  }
+
+  // Navigate to specific page
+  async function goToPage(pageNum) {
+    if (!currentFolderId || pageNum < 1 || pageNum === currentPage) return;
+    
+    try {
+      showPaginationLoading(true);
+      
+      const response = await fetch(`/api/folders/${currentFolderId}/contents?page=${pageNum}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Update pagination info
+      hasMoreImages = data.pagination.hasMore;
+      totalPages = data.pagination.totalPages;
+      totalImages = data.pagination.totalImages;
+      currentPage = pageNum;
+      
+      // Get items for this specific page
+      const pageFolders = data.items.filter(item => item.type === 'folder');
+      currentPageImages = data.items.filter(item => item.type === 'image');
+      
+      // Only show folders on page 1, other pages show only images
+      const foldersToShow = pageNum === 1 ? pageFolders : [];
+      
+      // Re-render gallery with only current page images
+      renderGallery(foldersToShow, currentPageImages);
+      initializeLightGallery();
+      updatePaginationControls();
+      
+      // Scroll to top for better UX
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      showPaginationLoading(false);
+      
+    } catch (error) {
+      console.error("Error navigating to page:", error);
+      showPaginationLoading(false);
+      showErrorMessage("Failed to load page. Please try again.");
+    }
+  }
+
+  // Show/hide pagination loading
+  function showPaginationLoading(show) {
+    const loadingEl = document.getElementById('paginationLoading');
+    if (loadingEl) {
+      loadingEl.style.display = show ? 'flex' : 'none';
+    }
+  }
+
+  // Show error message
+  function showErrorMessage(message) {
+    const errorMsg = document.createElement('div');
+    errorMsg.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ef4444;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    `;
+    errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>${message}</span>`;
+    document.body.appendChild(errorMsg);
+    
+    setTimeout(() => {
+      errorMsg.remove();
+    }, 3000);
   }
 
   // Load event gallery
@@ -73,33 +169,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Load folder contents
-      const response = await fetch(`/api/folders/${currentFolderId}/contents`);
+      // Load folder contents with pagination (start with page 1)
+      const response = await fetch(`/api/folders/${currentFolderId}/contents?page=1`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const items = await response.json();
+      const data = await response.json();
       
       loadingEl.style.display = "none";
 
-      if (!items || items.length === 0) {
+      if (!data.items || data.items.length === 0) {
         showEmptyState();
         return;
       }
 
-      // Separate folders and images
-      const folders = items.filter(item => item.type === 'folder');
-      const photos = items.filter(item => item.type === 'image');
+      // Store pagination info
+      hasMoreImages = data.pagination.hasMore;
+      totalPages = data.pagination.totalPages;
+      totalImages = data.pagination.totalImages;
+      currentPage = 1;
+
+      // Separate folders and images from current page
+      allFolders = data.items.filter(item => item.type === 'folder');
+      currentPageImages = data.items.filter(item => item.type === 'image');
       
-      if (folders.length === 0 && photos.length === 0) {
+      if (allFolders.length === 0 && currentPageImages.length === 0) {
         showEmptyState();
         return;
       }
 
-      renderGallery(folders, photos);
+      renderGallery(allFolders, currentPageImages);
       initializeLightGallery();
       addSelectionControls();
+      addPaginationControls();
       
       galleryEl.style.display = "grid";
 
@@ -207,6 +310,124 @@ document.addEventListener("DOMContentLoaded", () => {
     renderGallery([], photos);
   }
 
+  // Add pagination controls
+  function addPaginationControls() {
+    const paginationSection = document.getElementById('paginationSection');
+    if (!paginationSection) return;
+
+    // Clear existing pagination controls
+    paginationSection.innerHTML = '';
+
+    // Only show pagination if there are images with multiple pages available
+    if (totalImages <= 40) {
+      paginationSection.style.display = 'none';
+      return;
+    }
+
+    paginationSection.style.display = 'block';
+    const paginationControls = document.createElement('div');
+    paginationControls.id = 'paginationControls';
+    
+    // Generate page numbers (1-based)
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    
+    // Adjust start if we're near the end
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+    
+    let pageButtons = '';
+    
+    // Previous button
+    if (currentPage > 1) {
+      pageButtons += `<button class="page-btn nav-btn" data-page="${currentPage - 1}">‹</button>`;
+    }
+    
+    // First page if not visible
+    if (startPage > 1) {
+      pageButtons += `<button class="page-btn" data-page="1">1</button>`;
+      if (startPage > 2) {
+        pageButtons += `<span class="page-dots">...</span>`;
+      }
+    }
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      const isActive = i === currentPage ? 'active' : '';
+      pageButtons += `<button class="page-btn ${isActive}" data-page="${i}">${i}</button>`;
+    }
+    
+    // Last page if not visible
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageButtons += `<span class="page-dots">...</span>`;
+      }
+      pageButtons += `<button class="page-btn" data-page="${totalPages}">${totalPages}</button>`;
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+      pageButtons += `<button class="page-btn nav-btn" data-page="${currentPage + 1}">›</button>`;
+    }
+    
+    paginationControls.innerHTML = `
+      <div class="pagination-info">
+        <span>Page ${currentPage} of ${totalPages} (${totalImages} photos total)</span>
+      </div>
+      <div class="pagination-pages">
+        ${pageButtons}
+        ${hasMoreImages && currentPage < totalPages ? `<button id="loadMoreBtn" class="load-more-btn">Load More</button>` : ''}
+      </div>
+      <div id="paginationLoading" class="pagination-loading" style="display: none;">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Loading...</span>
+      </div>
+    `;
+    
+    paginationControls.style.cssText = `
+      background: white;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    `;
+    
+    paginationSection.appendChild(paginationControls);
+
+    // Add event listeners
+    setTimeout(() => {
+      const pageButtons = document.querySelectorAll('.page-btn');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+      pageButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const page = parseInt(btn.dataset.page);
+          goToPage(page);
+        });
+      });
+
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+          goToPage(currentPage + 1);
+        });
+      }
+    }, 100);
+  }
+
+  // Update pagination controls
+  function updatePaginationControls() {
+    addPaginationControls(); // Simply recreate the entire pagination
+  }
+
   // Add selection controls
   function addSelectionControls() {
     // Remove existing controls to avoid duplicates
@@ -244,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       border: 1px solid #e5e7eb;
-      z-index: 1000;
+      z-index: 1001;
     `;
     document.body.appendChild(selectionControls);
 
@@ -441,6 +662,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show empty state
   function showEmptyState() {
+    // Hide pagination section
+    const paginationSection = document.getElementById('paginationSection');
+    if (paginationSection) {
+      paginationSection.style.display = 'none';
+    }
+    
     galleryEl.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
         <div class="empty-icon" style="font-size: 4rem; color: #9ca3af; margin-bottom: 1.5rem;">
@@ -455,6 +682,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show error state
   function showError(message) {
+    // Hide pagination section
+    const paginationSection = document.getElementById('paginationSection');
+    if (paginationSection) {
+      paginationSection.style.display = 'none';
+    }
+    
     galleryEl.innerHTML = `
       <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
         <div class="error-icon" style="font-size: 4rem; color: #ef4444; margin-bottom: 1.5rem;">
@@ -538,8 +771,127 @@ document.addEventListener("DOMContentLoaded", () => {
       font-size: 12px;
       text-align: center;
     }
+    .pagination-info {
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .pagination-pages {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .page-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      color: #374151;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .page-btn:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+    .page-btn.active {
+      background: #000 !important;
+      color: white !important;
+      border-color: #000 !important;
+    }
+    .page-btn.nav-btn {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .page-dots {
+      color: #9ca3af;
+      font-weight: bold;
+      padding: 0 8px;
+    }
+    .load-more-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #10b981;
+      color: white;
+      border: 1px solid #10b981;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      margin-left: 16px;
+    }
+    .load-more-btn:hover {
+      background: #059669;
+      border-color: #059669;
+    }
+    .load-more-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .pagination-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .pagination-section {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      #paginationControls {
+        padding: 16px !important;
+        margin: 16px 0 !important;
+      }
+      .pagination-pages {
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+      }
+      .page-btn {
+        min-width: 36px !important;
+        height: 36px !important;
+        font-size: 13px !important;
+        padding: 6px 8px !important;
+      }
+      .load-more-btn {
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+        margin-left: 8px !important;
+      }
+      .pagination-info {
+        font-size: 13px !important;
+      }
+      /* Adjust selection controls for mobile */
+      #selectionControls {
+        bottom: 30px !important;
+        left: 20px !important;
+        right: 20px !important;
+        transform: none !important;
+      }
+    }
   `;
   document.head.appendChild(style);
+
+
 
   // Load photos on page load
   loadEventGallery();
