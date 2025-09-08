@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Falcons Gallery - Authentication</title>
+  <title>Falcons Media</title>
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -22,140 +22,157 @@
     }
 
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
     }
 
-    body::before {
-      content: "";
+    /* Background image carousel */
+    .background-carousel {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: url('/img/fal.jpeg') center center;
+      z-index: 1;
+    }
+
+    .background-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-size: cover;
-      opacity: 0.3;
-      z-index: -1;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
     }
 
-    .auth-container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 3rem 2.5rem;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      max-width: 420px;
-      width: 90%;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .background-image.active {
+      opacity: 0.4;
     }
 
-    .logo {
-      margin-bottom: 2rem;
+    /* Dark overlay */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%);
+      z-index: 2;
     }
 
-    .logo img {
-      height: 80px;
-      width: auto;
-      filter: brightness(0);
-      opacity: 0.8;
-    }
-
-    .auth-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.01em;
-    }
-
-    .auth-subtitle {
-      color: #666;
-      font-size: 1rem;
-      margin-bottom: 2rem;
-      font-weight: 400;
-    }
-
-    .input-group {
-      margin-bottom: 2rem;
+    /* Splash screen container */
+    .splash-container {
       position: relative;
-    }
-
-    #authInput {
-      width: 100%;
-      padding: 1rem 1.25rem;
-      border: 2px solid #e5e5e5;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-family: inherit;
-      background: rgba(255, 255, 255, 0.8);
-      transition: all 0.3s ease;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
-      letter-spacing: 0.2em;
+      animation: splashFadeIn 0.8s ease-out;
     }
 
-    #authInput:focus {
-      outline: none;
-      border-color: #000;
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+    /* Main logo container */
+    .logo-container {
+      position: relative;
+      margin-bottom: 2rem;
     }
 
-    #authInput::placeholder {
-      color: #999;
-      letter-spacing: normal;
+    .main-logo {
+      height: 120px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0;
+      transform: scale(0.5);
+      animation: logoReveal 1.5s ease-out 0.3s forwards;
     }
 
-    .submit-btn {
-      width: 100%;
-      padding: 1rem 1.5rem;
-      background: #000;
+    /* Welcome text */
+    .welcome-text {
       color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: textReveal 1s ease-out 0.8s forwards;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 1rem;
     }
 
-    .submit-btn:hover {
-      background: #333;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    .subtitle-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.1rem;
+      font-weight: 300;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: textReveal 1s ease-out 1s forwards;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
-    .submit-btn:active {
-      transform: translateY(0);
+    /* Loading indicator */
+    .loading-indicator {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      animation: loadingFadeIn 0.5s ease-out 1.2s forwards;
     }
 
-    .error-message {
-      background: rgba(239, 68, 68, 0.1);
-      color: #dc2626;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      display: none;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      animation: loadingPulse 1.5s ease-in-out infinite;
     }
 
-    /* Subtle animations */
-    .auth-container {
-      animation: slideUp 0.6s ease;
+    .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
     }
 
-    @keyframes slideUp {
+    .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    /* Animations */
+    @keyframes splashFadeIn {
       from {
         opacity: 0;
-        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes logoReveal {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes textReveal {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
       to {
         opacity: 1;
@@ -163,103 +180,141 @@
       }
     }
 
+    @keyframes loadingFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes loadingPulse {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Fade out animation for the entire splash */
+    .splash-fade-out {
+      animation: fadeOut 0.5s ease-in forwards;
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
     /* Mobile responsiveness */
-    @media (max-width: 480px) {
-      .auth-container {
-        padding: 2rem 1.5rem;
-        margin: 1rem;
+    @media (max-width: 768px) {
+      .main-logo {
+        height: 100px;
       }
       
-      .auth-title {
+      .welcome-text {
+        font-size: 2rem;
+      }
+      
+      .subtitle-text {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-logo {
+        height: 80px;
+      }
+      
+      .welcome-text {
         font-size: 1.5rem;
       }
       
-      .logo img {
-        height: 60px;
+      .subtitle-text {
+        font-size: 0.9rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="logo">
-      <img src="/img/falconsblack.png" alt="Falcons Logo" />
+  <!-- Background image carousel -->
+  <div class="background-carousel" id="backgroundCarousel"></div>
+  
+  <!-- Dark overlay -->
+  <div class="overlay"></div>
+  
+  <!-- Splash screen content -->
+  <div class="splash-container">
+    <div class="logo-container">
+      <img src="/img/falconswhite.png" alt="Falcons Logo" class="main-logo" />
     </div>
     
-    <h1 class="auth-title">Welcome Back</h1>
-    <p class="auth-subtitle">Enter your authentication code to continue</p>
-    
-    <div class="input-group">
-      <input type="password" id="authInput" placeholder="Authentication Code" autocomplete="off" />
-    </div>
-    
-    <button class="submit-btn" onclick="checkCode()">
-      Access Gallery
-    </button>
-    
-    <div class="error-message" id="errorMessage">
-      Invalid authentication code. Please try again.
-    </div>
+    <h1 class="welcome-text">FALCONS MEDIA</h1>
+    <p class="subtitle-text">Capture. Create. Celebrate.</p>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="loading-indicator">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
   </div>
 
   <script>
-    const SITE_PIN = "1946";
+    // Splash screen images - add your desired images to /img/splash/ folder
+    const splashImages = [
+      '/img/splash/splash1.jpg',
+      '/img/splash/splash2.jpg',
+      '/img/splash/splash3.jpg',
+      '/img/splash/splash4.jpg',
+      '/img/splash/splash5.jpg'
+    ];
 
-    function checkCode() {
-      const input = document.getElementById("authInput");
-      const errorMessage = document.getElementById("errorMessage");
-      const value = input.value.trim();
+    let currentImageIndex = 0;
+    let backgroundInterval;
+
+    function initBackgroundCarousel() {
+      const carousel = document.getElementById('backgroundCarousel');
       
-      if (value === SITE_PIN) {
-        // Success animation
-        input.style.borderColor = "#22c55e";
-        input.style.background = "rgba(34, 197, 94, 0.1)";
-        
-        setTimeout(() => {
-          window.location.href = "/index1.html";
-        }, 200);
-      } else {
-        // Error animation
-        input.style.borderColor = "#ef4444";
-        input.style.background = "rgba(239, 68, 68, 0.1)";
-        errorMessage.style.display = "block";
-        
-        // Shake animation
-        input.style.animation = "shake 0.5s ease-in-out";
-        
-        setTimeout(() => {
-          input.style.borderColor = "#e5e5e5";
-          input.style.background = "rgba(255, 255, 255, 0.8)";
-          input.style.animation = "";
-          errorMessage.style.display = "none";
-          input.value = "";
-          input.focus();
-        }, 2000);
-      }
+      splashImages.forEach((photo, index) => {
+        const bgDiv = document.createElement('div');
+        bgDiv.className = 'background-image';
+        bgDiv.style.backgroundImage = `url('${photo}')`;
+        if (index === 0) bgDiv.classList.add('active');
+        carousel.appendChild(bgDiv);
+      });
+
+      startCarousel();
     }
 
-    // Handle Enter key
-    document.getElementById("authInput").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        checkCode();
-      }
-    });
+    function startCarousel() {
+      backgroundInterval = setInterval(() => {
+        const images = document.querySelectorAll('.background-image');
+        images[currentImageIndex].classList.remove('active');
+        currentImageIndex = (currentImageIndex + 1) % splashImages.length;
+        images[currentImageIndex].classList.add('active');
+      }, 600);
+    }
 
-    // Auto-focus input
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById("authInput").focus();
-    });
+    function initSplashScreen() {
+      initBackgroundCarousel();
+      
+      setTimeout(() => {
+        clearInterval(backgroundInterval);
+        document.body.classList.add('splash-fade-out');
+        setTimeout(() => window.location.href = '/index1.html', 500);
+      }, 4000);
+    }
 
-    // Add shake animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-      }
-    `;
-    document.head.appendChild(style);
+    document.addEventListener('DOMContentLoaded', initSplashScreen);
   </script>
 </body>
 </html>
