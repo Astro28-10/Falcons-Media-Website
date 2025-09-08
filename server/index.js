@@ -383,6 +383,20 @@ app.get("/api/imageproxy/:id", async (req, res) => {
 
     // Only stream full image for w1200 or no size
     if (size === "w1200" || !req.query.size) {
+      // For HEIC images, use a larger thumbnail instead of the original file
+      // This ensures better compatibility with LightGallery and browsers
+      if (fileInfo.data.mimeType === "image/heic" || fileInfo.data.mimeType === "image/heif" || 
+          fileInfo.data.name.toLowerCase().endsWith('.heic') || fileInfo.data.name.toLowerCase().endsWith('.heif')) {
+        const thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+        const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+        const thumbRes = await fetch(thumbUrl);
+        if (thumbRes.ok) {
+          res.set("Content-Type", thumbRes.headers.get("content-type") || "image/jpeg");
+          res.set("Cache-Control", "public, max-age=86400");
+          return thumbRes.body.pipe(res);
+        }
+      }
+      
       const response = await drive.files.get(
         { fileId: fileId, alt: "media" },
         { responseType: "stream" }
