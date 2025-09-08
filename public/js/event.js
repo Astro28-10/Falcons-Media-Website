@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (paginationSection) {
         paginationSection.style.display = 'none';
       }
+      document.body.classList.remove('pagination-active');
       loadEventGallery();
     });
   }
@@ -321,10 +322,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Only show pagination if there are images with multiple pages available
     if (totalImages <= 40) {
       paginationSection.style.display = 'none';
+      document.body.classList.remove('pagination-active');
       return;
     }
 
     paginationSection.style.display = 'block';
+    document.body.classList.add('pagination-active');
     const paginationControls = document.createElement('div');
     paginationControls.id = 'paginationControls';
     
@@ -388,11 +391,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     paginationControls.style.cssText = `
       background: white;
-      padding: 20px;
+      padding: 16px 20px;
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin: 16px 0 8px 0;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -667,6 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (paginationSection) {
       paginationSection.style.display = 'none';
     }
+    document.body.classList.remove('pagination-active');
     
     galleryEl.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
@@ -687,6 +691,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (paginationSection) {
       paginationSection.style.display = 'none';
     }
+    document.body.classList.remove('pagination-active');
     
     galleryEl.innerHTML = `
       <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
@@ -853,13 +858,26 @@ document.addEventListener("DOMContentLoaded", () => {
       font-size: 13px;
     }
     .pagination-section {
-      margin-top: 40px;
-      margin-bottom: 20px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    /* Reduce photo-gallery bottom padding when pagination is present */
+    .photo-gallery:has(.pagination-section[style*="block"]) {
+      padding-bottom: 1rem;
+    }
+    /* Fallback for browsers that don't support :has() */
+    .pagination-active .photo-gallery {
+      padding-bottom: 1rem;
     }
     @media (max-width: 768px) {
       #paginationControls {
-        padding: 16px !important;
-        margin: 16px 0 !important;
+        padding: 14px 16px !important;
+        margin: 12px 0 6px 0 !important;
+        border-radius: 6px !important;
+      }
+      .pagination-section {
+        margin-top: 20px !important;
+        margin-bottom: 6px !important;
       }
       .pagination-pages {
         gap: 8px !important;
@@ -883,9 +901,11 @@ document.addEventListener("DOMContentLoaded", () => {
       /* Adjust selection controls for mobile */
       #selectionControls {
         bottom: 30px !important;
-        left: 20px !important;
-        right: 20px !important;
-        transform: none !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: auto !important;
+        max-width: calc(100vw - 40px) !important;
       }
     }
   `;
