@@ -1,103 +1,130 @@
 # Falcons Media Website 📸
 
-A modern, responsive website for **Falcons of BMSCE** - the official photography club of BMS College of Engineering. This website serves as a digital gallery, team showcase, and event management platform.
+A modern, responsive website for **Falcons of BMSCE** - the official photography club of BMS College of Engineering. This website serves as a digital gallery, team showcase, and event management platform, built with a focus on user experience, scalability, and ease of maintenance.
 
 ## 🌟 Features
 
 ### 🖼️ Gallery & Media Management
-- **Interactive Photo Gallery**: Browse through captured moments from various events
-- **Google Drive Integration**: Seamless file upload and management
-- **Event-wise Organization**: Photos organized by events and categories
-- **Responsive Image Display**: Optimized viewing across all devices
+- **Interactive Photo Gallery**: Browse through captured moments from various events with lazy loading for performance.
+- **Google Drive Integration**: Seamless file upload and management via Google Drive API, supporting batch uploads and automatic organization.
+- **Event-wise Organization**: Photos organized by events and categories, with metadata tagging for easy search.
+- **Responsive Image Display**: Optimized viewing across all devices, including WebP support for faster loading.
 
 ### 👥 Team Archive System
-- **Dynamic Team Display**: Switch between current and past event teams
-- **Event-based Team History**: Preserve core team memories for each event
-- **Role-based Organization**: Leadership, Junior Coordinators, and Photography Team sections
-- **Social Media Integration**: Direct links to team members' profiles
+- **Dynamic Team Display**: Switch between current and past event teams using a dropdown selector.
+- **Event-based Team History**: Preserve core team memories for each event, with expandable sections for roles.
+- **Role-based Organization**: Separate sections for Leadership (Senior Coordinators), Junior Coordinators (Technical specialists), and Photography Team (Extended members).
+- **Social Media Integration**: Direct links to team members' profiles (Instagram, LinkedIn) for networking.
 
 ### 🎯 Events & Activities
-- **Event Showcase**: Dedicated pages for major events like UTSAV and PHASE SHIFT
-- **Interactive Event Cards**: Engaging display of event information
-- **Photo Collections**: Event-specific photo galleries
+- **Event Showcase**: Dedicated pages for major events like UTSAV and PHASE SHIFT, with dynamic content loading.
+- **Interactive Event Cards**: Engaging display of event information, including dates, descriptions, and photo previews.
+- **Photo Collections**: Event-specific photo galleries with filtering options (e.g., by date or category).
 
 ### 🔧 Technical Features
-- **Modern UI/UX**: Clean, professional design with smooth transitions
-- **Mobile-First Design**: Fully responsive across all screen sizes
-- **Google Drive API**: Automated file management and organization
-- **Express.js Backend**: Robust server-side functionality
-- **File Upload System**: Secure and efficient file handling
+- **Modern UI/UX**: Clean, professional design with smooth CSS transitions and animations.
+- **Mobile-First Design**: Fully responsive across all screen sizes, using media queries and flexible layouts.
+- **Google Drive API**: Automated file management and organization, with error handling for API limits.
+- **Express.js Backend**: Robust server-side functionality with middleware for security and performance.
+- **File Upload System**: Secure and efficient file handling using Multer, with validation for file types and sizes.
 
 ## 🚀 Live Demo
 
-Visit the live website: [Falcons Media Website](https://your-domain.com)
+Visit the live website: [Falcons Media Website](https://your-domain.com) (Replace with your actual URL).
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **HTML5**: Semantic markup and structure
-- **CSS3**: Modern styling with CSS Grid and Flexbox
-- **JavaScript**: Interactive functionality and DOM manipulation
-- **Google Fonts**: Typography (Inter & Playfair Display)
-- **Font Awesome**: Icon library
+- **HTML5**: Semantic markup and structure for accessibility (e.g., ARIA labels for screen readers).
+- **CSS3**: Modern styling with CSS Grid, Flexbox, and custom properties (CSS variables) for theming.
+- **JavaScript (ES6+)**: Interactive functionality, DOM manipulation, and event handling (no frameworks for lightweight performance).
+- **Google Fonts**: Typography (Inter for body text, Playfair Display for headings) – loaded asynchronously to avoid render-blocking.
+- **Font Awesome**: Icon library (v6.x) for consistent UI elements.
 
 ### Backend
-- **Node.js**: Runtime environment
-- **Express.js**: Web application framework
-- **Google APIs**: Drive API integration
-- **Multer**: File upload middleware
-- **CORS**: Cross-origin resource sharing
+- **Node.js**: Runtime environment (v14+ recommended for stability).
+- **Express.js**: Web application framework with routing, middleware, and error handling.
+- **Google APIs**: Drive API integration for file operations (authentication via service account).
+- **Multer**: File upload middleware with disk storage and memory limits.
+- **CORS**: Cross-origin resource sharing for API security.
+- **Archiver**: For creating ZIP archives of photo collections.
+- **Dotenv**: Environment variable management for sensitive data.
 
-### Dependencies
+### Dependencies (from package.json)
 ```json
 {
-  "express": "^4.18.2",
-  "googleapis": "^133.0.0",
-  "multer": "^1.4.5-lts.1",
-  "cors": "^2.8.5",
-  "archiver": "^5.3.2",
-  "dotenv": "^16.3.1"
+  "name": "falcons-media-website",
+  "version": "1.0.0",
+  "description": "Official website for Falcons of BMSCE photography club",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "googleapis": "^133.0.0",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "archiver": "^5.3.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["photography", "gallery", "events", "BMSCE", "Falcons"],
+  "author": "Sujay Agarwal & Nithin K Patil",
+  "license": "MIT"
 }
 ```
 
-## 📁 Project Structure
+## 📁 Project Structure (Detailed)
 
 ```
 Falcons-Media-Website/
-├── public/                     # Frontend assets
-│   ├── index.html             # Main landing page
-│   ├── index1.html            # Gallery page
-│   ├── aboutus.html           # Team showcase page
-│   ├── event.html             # Events page
-│   ├── css/                   # Stylesheets
-│   │   ├── style.css          # Main styles
-│   │   ├── index-style.css    # Landing page styles
-│   │   ├── about.css          # About page styles
-│   │   └── event-style.css    # Event page styles
-│   ├── js/                    # JavaScript files
-│   │   ├── event.js           # Event functionality
-│   │   ├── event_fixed.js     # Enhanced event features
-│   │   └── event_simple.js    # Simplified event handling
+├── public/                     # Static frontend assets (served by Express)
+│   ├── index.html             # Main landing page (hero section, navigation)
+│   ├── index1.html            # Gallery page (photo grid, filters)
+│   ├── aboutus.html           # Team showcase page (with archive system)
+│   ├── event.html             # Events page (event cards, details)
+│   ├── css/                   # Stylesheets (modular for maintainability)
+│   │   ├── style.css          # Global styles (reset, variables, utilities)
+│   │   ├── index-style.css    # Landing page-specific styles
+│   │   ├── about.css          # About page styles (team cards, dropdown)
+│   │   └── event-style.css    # Event page styles (cards, animations)
+│   ├── js/                    # Client-side JavaScript (vanilla JS)
+│   │   ├── event.js           # Event page functionality (card interactions)
+│   │   ├── event_fixed.js     # Enhanced event features (e.g., lazy loading)
+│   │   └── event_simple.js    # Simplified event handling (fallback)
 │   └── img/                   # Images and assets
-│       ├── falconswhite.png   # Logo (white)
-│       ├── falconsblack.png   # Logo (black)
-│       └── people/            # Team member photos
-├── server/                    # Backend code
-│   ├── index.js              # Main server file
-│   └── auth/                 # Authentication
-│       └── credentials.json  # Google API credentials
-├── uploads/                  # Temporary upload directory
-├── package.json             # Project dependencies
-└── README.md               # Project documentation
+│       ├── falconswhite.png   # Logo (white variant for light backgrounds)
+│       ├── falconsblack.png   # Logo (black variant for dark backgrounds)
+│       └── people/            # Team member photos (optimized for web)
+├── server/                    # Backend code (Node.js/Express)
+│   ├── index.js              # Main server file (routes, middleware, API endpoints)
+│   └── auth/                 # Authentication for Google APIs
+│       └── credentials.json  # Google service account credentials (DO NOT COMMIT)
+├── uploads/                  # Temporary directory for file uploads (auto-cleaned)
+├── .env                      # Environment variables (ignored in Git)
+├── package.json             # Project metadata and dependencies
+├── package-lock.json        # Dependency lock file
+└── README.md               # This file
 ```
+
+### Key Files Explained
+- **public/index.html**: Entry point with navigation and hero. Adjust for branding (e.g., update logo paths).
+- **server/index.js**: Handles API routes (e.g., `/upload` for file uploads). Modify for new endpoints.
+- **css/style.css**: Global styles. Use for theme changes (e.g., color variables).
+- **js/event.js**: Client-side logic. Update for new interactions.
 
 ## 🔧 Installation & Setup
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-- Google Cloud Platform account
-- Google Drive API credentials
+- **Node.js** (v14 or higher) – Download from [nodejs.org](https://nodejs.org/).
+- **npm** or **yarn** (comes with Node.js).
+- **Google Cloud Platform** account for API access.
+- **Git** for version control.
 
 ### 1. Clone the Repository
 ```bash
@@ -109,141 +136,123 @@ cd Falcons-Media-Website
 ```bash
 npm install
 ```
+This installs all packages from `package.json`. For development, also install dev dependencies like Nodemon.
 
 ### 3. Environment Configuration
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (copy from `.env.example` if available):
 ```env
-GOOGLE_SERVICE_ACCOUNT={"type":"service_account","project_id":"..."}
+GOOGLE_SERVICE_ACCOUNT={"type":"service_account","project_id":"your-project-id","private_key":"..."}
 PORT=3000
+NODE_ENV=development
 ```
+- `GOOGLE_SERVICE_ACCOUNT`: JSON string from your Google credentials.
+- `PORT`: Server port (default 3000).
+- `NODE_ENV`: Set to "production" for live deployment.
 
 ### 4. Google Drive API Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable Google Drive API
-4. Create service account credentials
-5. Download credentials JSON file
-6. Place it in `server/auth/credentials.json`
+1. Go to [Google Cloud Console](https://console.cloud.google.com/).
+2. Create/select a project.
+3. Enable **Google Drive API** in the API Library.
+4. Create a **Service Account** under IAM & Admin > Service Accounts.
+5. Generate/download a JSON key file.
+6. Place it as `server/auth/credentials.json`.
+7. Share your Google Drive folder with the service account email (from JSON) and grant editor access.
 
 ### 5. Run the Application
 
-#### Development Mode
+#### Development Mode (with auto-restart)
 ```bash
 npm run dev
 ```
+Uses Nodemon for hot reloading.
 
 #### Production Mode
 ```bash
 npm start
 ```
+The website will be available at `http://localhost:3000`.
 
-The website will be available at `http://localhost:3000`
+### Troubleshooting Setup
+- **Port already in use?** Change `PORT` in `.env` or kill the process: `npx kill-port 3000`.
+- **Google API errors?** Verify credentials JSON and Drive permissions.
+- **Dependencies fail?** Clear npm cache: `npm cache clean --force` and reinstall.
 
 ## 🎨 Team Archive System
 
-The website features an innovative team archive system that allows visitors to view different event teams:
+This system allows dynamic switching between event teams, preserving history.
 
 ### Current Implementation
-- **PHASE SHIFT 2025**: Current active team
-- **UTSAV 2025**: Previous event team (archived)
+- **PHASE SHIFT 2025**: Active team (default view).
+- **UTSAV 2025**: Archived team.
 
-### Adding New Event Teams
+### How to Adjust/Add New Event Teams
+1. **Update HTML** (`public/aboutus.html`):
+   - Add to dropdown: `<option value="new-event-2026">NEW EVENT 2026</option>`.
+   - Create sections: Duplicate existing team divs (e.g., `#phase-shift-2025-leadership`) and rename IDs (e.g., `#new-event-2026-leadership`). Update member details manually.
 
-1. **Update HTML Structure** (`aboutus.html`):
-```html
-<!-- Add new option to dropdown -->
-<option value="new-event-2026">NEW EVENT 2026</option>
+2. **Update JavaScript** (in `public/aboutus.html` or a separate JS file):
+   ```javascript
+   // In the switch function, add:
+   else if (selectedEvent === 'new-event-2026') {
+     document.getElementById('new-event-2026-leadership').style.display = 'block';
+     // Hide others...
+   }
+   ```
 
-<!-- Create new team sections -->
-<div id="new-event-2026-leadership" class="team-archive" style="display: none;">
-  <!-- Team members here -->
-</div>
-```
+3. **Update CSS** (`public/css/about.css`):
+   - Add styles for new sections: `.team-archive { transition: opacity 0.3s; }`.
+   - Adjust for responsiveness: Use media queries for mobile team cards.
 
-2. **Update JavaScript** (`aboutus.html`):
-```javascript
-else if (selectedEvent === 'new-event-2026') {
-  document.getElementById('new-event-2026-leadership').style.display = 'block';
-  document.getElementById('new-event-2026-juniors').style.display = 'block';
-  document.getElementById('new-event-2026-photographers').style.display = 'block';
-}
-```
+4. **Testing**: Switch teams in browser and verify display. Update member photos in `public/img/people/`.
 
-## 📱 Responsive Design
+## 🛠️ Detailed Adjustment Guides
 
-The website is fully responsive and optimized for:
-- **Desktop**: Full-featured experience with hover effects
-- **Tablet**: Adapted layouts for medium screens
-- **Mobile**: Touch-friendly interface with optimized navigation
+### How to Modify the Hero Section
+1. Open `public/index.html`.
+2. Locate the hero section (usually `<section class="hero">`).
+3. To change the title: Edit the `<h1>` tag.
+4. To change the subtitle: Edit the `<p>` tag.
+5. To change the background: Edit `public/css/index-style.css`, update the `background-image` property in `.hero` class.
 
-## 🚀 Deployment
+### How to Update Team Member Information
+1. Open `public/aboutus.html`.
+2. Find the team member div (e.g., `<div class="team-member">`).
+3. Update name in `<h3>`, designation in `<p>`, photo in `<img src>`, links in `<a>`.
 
-### Railway Deployment
-The project is configured for easy deployment on Railway:
+### How to Add a New Event
+1. Open `public/event.html`.
+2. Duplicate an existing event card div.
+3. Update title, date, description, image.
+4. If needed, add new CSS in `public/css/event-style.css`.
 
-1. Connect your GitHub repository to Railway
-2. Set environment variables in Railway dashboard
-3. Deploy automatically on push to main branch
+### How to Modify the Gallery Page
+1. Open `public/index1.html`.
+2. To add photos: Add new `<img>` tags in the gallery container.
+3. For dynamic loading: Edit `public/js/event.js` to fetch from API.
 
-### Manual Deployment
-1. Build the project: `npm run build` (if applicable)
-2. Upload files to your hosting provider
-3. Configure environment variables
-4. Start the server: `npm start`
+### How to Change Colors/Themes
+1. Open `public/css/style.css`.
+2. Locate CSS variables at the top (e.g., `--primary-color: #yourcolor;`).
+3. Change the hex values.
 
-## 🤝 Contributing
+### How to Add New Dependencies
+1. Run `npm install new-package`.
+2. Update `server/index.js` to require it.
+3. For frontend, add `<script>` or `<link>` in HTML.
 
-We welcome contributions to improve the Falcons Media Website! Here's how you can help:
+### API Endpoints (from server/index.js)
+- `GET /` : Serves `index.html`
+- `POST /upload` : Handles file uploads to Google Drive
+- `GET /gallery` : Returns list of photos
+- `GET /events` : Returns event data
+- (Add more as needed by editing `server/index.js`)
 
-### Getting Started
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Commit changes: `git commit -m 'Add amazing feature'`
-5. Push to branch: `git push origin feature/amazing-feature`
-6. Open a Pull Request
+### How to Debug JavaScript Errors
+- Open browser dev tools (F12).
+- Check console for errors.
+- Use `debugger;` in JS files for breakpoints.
 
-### Code Style Guidelines
-- Use consistent indentation (2 spaces)
-- Follow semantic HTML practices
-- Use meaningful variable and function names
-- Comment complex functionality
-- Test across different browsers and devices
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Contact & Support
-
-### Falcons of BMSCE
-- **Instagram**: [@falcons.of.bmsce](https://www.instagram.com/falcons.of.bmsce/)
-- **LinkedIn**: [Falcons of BMSCE](https://www.linkedin.com/company/falcons-of-bmsce/)
-
-### Development Team
-- **Sujay Agarwal**: [@sujay-agarwal28](https://www.linkedin.com/in/sujay-agarwal28/)
-- **Nithin K Patil**: [@nithin_ox](https://instagram.com/nithin_ox)
-
-## 🙏 Acknowledgments
-
-- **BMS College of Engineering** for supporting the photography club
-- **Google Drive API** for seamless file management
-- **Font Awesome** for beautiful icons
-- **Google Fonts** for elegant typography
-- All **Falcons team members** for their dedication and creativity
-
-## 📈 Future Enhancements
-
-- [ ] User authentication system
-- [ ] Advanced photo filtering and search
-- [ ] Real-time notifications for new uploads
-- [ ] Integration with social media platforms
-- [ ] Mobile app development
-- [ ] Enhanced admin panel
-- [ ] Automated event creation workflow
-
----
-
-**Made with ❤️ by the Falcons of BMSCE team**
-
-*Capturing moments, one frame at a time.*
+### How to Optimize Images
+- Use tools like TinyPNG or ImageOptim.
+- Save in WebP format for better compression.
+- Update `<img>` tags with new paths in `public/img/`.
