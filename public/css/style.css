@@ -108,6 +108,32 @@ button {
 .nav-left {
   display: flex;
   align-items: center;
+  gap: var(--spacing-md);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-2px);
+}
+
+.back-button:active {
+  transform: translateX(-4px);
 }
 
 .logo-link {
