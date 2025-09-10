@@ -605,7 +605,7 @@ button {
 
 .control-btn:hover {
   background: var(--primary);
-  color: var(--secondary);
+  color: black;
   border-color: var(--primary);
   transform: translateY(-2px);
 }
