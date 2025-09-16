@@ -62,3 +62,7 @@ node_modules/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Google Analytics
+analytics-config.js
+ga-config.json
