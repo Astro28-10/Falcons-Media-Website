@@ -6,62 +6,71 @@ function initializeGA() {
     // Check if already initialized
     if (window.gtag) return;
     
-    // Load gtag script
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    document.head.appendChild(script);
+    try {
+        // Load gtag script
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+        script.onerror = () => console.warn('Failed to load Google Analytics');
+        document.head.appendChild(script);
 
-    // Initialize gtag
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', GA_MEASUREMENT_ID, {
-        page_title: document.title,
-        page_location: window.location.href
-    });
-    
-    // Make gtag globally available
-    window.gtag = gtag;
-    
-    // Auto-track media interactions
-    setupMediaTracking();
+        // Initialize gtag
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', GA_MEASUREMENT_ID, {
+            page_title: document.title,
+            page_location: window.location.href
+        });
+        
+        // Make gtag globally available
+        window.gtag = gtag;
+        
+        // Auto-track media interactions
+        setupMediaTracking();
+    } catch (error) {
+        console.warn('Google Analytics initialization failed:', error);
+    }
 }
 
 // Media-specific tracking functions
 function setupMediaTracking() {
-    // Track video interactions
-    document.addEventListener('play', function(e) {
-        if (e.target.tagName === 'VIDEO') {
-            trackCustomEvent('video_play', {
-                video_title: e.target.title || 'Untitled Video',
-                video_duration: e.target.duration
-            });
-        }
-    }, true);
-    
-    // Track image views (for galleries)
-    const images = document.querySelectorAll('img[data-track="true"]');
-    images.forEach(img => {
-        img.addEventListener('click', () => {
-            trackCustomEvent('image_view', {
-                image_name: img.alt || img.src.split('/').pop()
+    try {
+        // Track video interactions
+        document.addEventListener('play', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                trackCustomEvent('video_play', {
+                    video_title: e.target.title || 'Untitled Video',
+                    video_duration: e.target.duration
+                });
+            }
+        }, true);
+        
+        // Track image views (for galleries)
+        const images = document.querySelectorAll('img[data-track="true"]');
+        images.forEach(img => {
+            img.addEventListener('click', () => {
+                trackCustomEvent('image_view', {
+                    image_name: img.alt || img.src.split('/').pop()
+                });
             });
         });
-    });
-    
-    // Track scroll depth
-    let maxScroll = 0;
-    window.addEventListener('scroll', () => {
-        const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-        if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
-            maxScroll = scrollPercent;
-            trackCustomEvent('scroll_depth', {
-                scroll_percentage: scrollPercent,
-                page_title: document.title
-            });
-        }
-    });
+        
+        // Track scroll depth
+        let maxScroll = 0;
+        window.addEventListener('scroll', () => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+                maxScroll = scrollPercent;
+                trackCustomEvent('scroll_depth', {
+                    scroll_percentage: scrollPercent,
+                    page_title: document.title
+                });
+            }
+        });
+    } catch (error) {
+        console.warn('Media tracking setup failed:', error);
+    }
 }
 
 // Custom event tracking functions
@@ -99,14 +108,18 @@ function trackDownload(fileName, fileType) {
 
 // Track external link clicks
 function setupExternalLinkTracking() {
-    document.addEventListener('click', function(e) {
-        if (e.target.tagName === 'A' && e.target.hostname !== window.location.hostname) {
-            trackCustomEvent('external_link_click', {
-                link_url: e.target.href,
-                link_text: e.target.textContent.trim()
-            });
-        }
-    });
+    try {
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.hostname !== window.location.hostname) {
+                trackCustomEvent('external_link_click', {
+                    link_url: e.target.href,
+                    link_text: e.target.textContent.trim()
+                });
+            }
+        });
+    } catch (error) {
+        console.warn('External link tracking setup failed:', error);
+    }
 }
 
 // Initialize when DOM is loaded

@@ -44,14 +44,62 @@ if (!process.env.ROOT_FOLDER_ID) {
 
 // Google Drive Setup
 const SCOPES = ["https://www.googleapis.com/auth/drive"];
-// Load credentials from environment variable for Railway deployment
-const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || fs.readFileSync(path.join(__dirname, "auth/credentials.json"), "utf8"));
-const auth = new google.auth.JWT(
-  credentials.client_email,
-  null,
-  credentials.private_key,
-  SCOPES
-);
+
+// Enhanced credentials handling for Digital Ocean deployment
+let credentials;
+try {
+  if (process.env.GOOGLE_SERVICE_ACCOUNT) {
+    console.log("Loading credentials from environment variable...");
+    credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+    
+    // Fix private key formatting issues
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key
+        .replace(/\\n/g, '\n')  // Replace escaped newlines with actual newlines
+        .replace(/"/g, '')      // Remove any stray quotes
+        .trim();                // Remove whitespace
+      
+      // Ensure proper PEM format
+      if (!credentials.private_key.startsWith('-----BEGIN PRIVATE KEY-----')) {
+        console.error("ERROR: Invalid private key format in environment variable");
+        process.exit(1);
+      }
+    }
+  } else if (fs.existsSync(path.join(__dirname, "auth/credentials.json"))) {
+    console.log("Loading credentials from file...");
+    credentials = JSON.parse(fs.readFileSync(path.join(__dirname, "auth/credentials.json"), "utf8"));
+  } else {
+    throw new Error("No credentials found");
+  }
+} catch (error) {
+  console.error("ERROR: Failed to load Google credentials:", error.message);
+  process.exit(1);
+}
+
+// Create auth with proper error handling
+let auth;
+try {
+  auth = new google.auth.JWT(
+    credentials.client_email,
+    null,
+    credentials.private_key,
+    SCOPES
+  );
+  
+  // Test the authentication
+  auth.authorize((err) => {
+    if (err) {
+      console.error("ERROR: Google Auth failed:", err.message);
+      process.exit(1);
+    } else {
+      console.log("✅ Google Drive authentication successful");
+    }
+  });
+} catch (error) {
+  console.error("ERROR: Failed to create Google auth:", error.message);
+  process.exit(1);
+}
+
 const drive = google.drive({ version: "v3", auth });
 
 // Helper function for folder icons (keeping your existing function)
