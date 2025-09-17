@@ -66,3 +66,6 @@ Thumbs.db
 # Google Analytics
 analytics-config.js
 ga-config.json
+
+# Google Cloud Credentials (IMPORTANT - exclude from git)
+server/auth/credentials.json

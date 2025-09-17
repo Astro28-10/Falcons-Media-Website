@@ -25,6 +25,23 @@ app.use(
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
+// Add error logging middleware at the top
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
+// Add error handling for environment variables
+if (!process.env.GOOGLE_SERVICE_ACCOUNT && !fs.existsSync(path.join(__dirname, "auth/credentials.json"))) {
+  console.error("ERROR: GOOGLE_SERVICE_ACCOUNT environment variable not set and credentials.json not found");
+  process.exit(1);
+}
+
+if (!process.env.ROOT_FOLDER_ID) {
+  console.error("ERROR: ROOT_FOLDER_ID environment variable not set");
+  process.exit(1);
+}
+
 // Google Drive Setup
 const SCOPES = ["https://www.googleapis.com/auth/drive"];
 // Load credentials from environment variable for Railway deployment
@@ -175,11 +192,17 @@ app.post("/api/events", eventUpload.single("coverPhoto"), async (req, res) => {
 // Update /api/events to use custom coverId if set
 app.get("/api/events", async (req, res) => {
   try {
+    console.log("Fetching events from Google Drive...");
+    console.log("ROOT_FOLDER_ID:", process.env.ROOT_FOLDER_ID);
+    
     const response = await drive.files.list({
       q: `'${process.env.ROOT_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'`,
       fields: "files(id,name,createdTime,appProperties)",
       orderBy: "createdTime desc",
     });
+    
+    console.log("Drive API response:", response.data.files.length, "folders found");
+    
     const events = await Promise.all(
       response.data.files.map(async (event) => {
         let coverId = event.appProperties && event.appProperties.coverId;
@@ -198,10 +221,20 @@ app.get("/api/events", async (req, res) => {
         };
       })
     );
+    
     res.set("Cache-Control", "public, max-age=3600");
     res.json(events);
   } catch (error) {
-    res.status(500).json({ error: "Failed to load events" });
+    console.error("Error in /api/events:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    res.status(500).json({ 
+      error: "Failed to load events",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
