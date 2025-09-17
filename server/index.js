@@ -50,20 +50,45 @@ let credentials;
 try {
   if (process.env.GOOGLE_SERVICE_ACCOUNT) {
     console.log("Loading credentials from environment variable...");
-    credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
     
-    // Fix private key formatting issues
+    let credentialString = process.env.GOOGLE_SERVICE_ACCOUNT;
+    
+    // If the environment variable is base64 encoded, decode it first
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_BASE64) {
+      credentialString = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_BASE64, 'base64').toString();
+    }
+    
+    credentials = JSON.parse(credentialString);
+    
+    // Fix private key formatting issues - more robust handling
     if (credentials.private_key) {
-      credentials.private_key = credentials.private_key
-        .replace(/\\n/g, '\n')  // Replace escaped newlines with actual newlines
-        .replace(/"/g, '')      // Remove any stray quotes
-        .trim();                // Remove whitespace
+      let privateKey = credentials.private_key;
       
-      // Ensure proper PEM format
-      if (!credentials.private_key.startsWith('-----BEGIN PRIVATE KEY-----')) {
-        console.error("ERROR: Invalid private key format in environment variable");
-        process.exit(1);
+      // Handle different newline formats
+      privateKey = privateKey
+        .replace(/\\n/g, '\n')  // Replace escaped newlines with actual newlines
+        .replace(/\\r\\n/g, '\n')  // Handle Windows line endings
+        .replace(/\\r/g, '\n')     // Handle Mac line endings
+        .replace(/"/g, '')         // Remove any stray quotes
+        .trim();                   // Remove whitespace
+      
+      // Ensure proper PEM format structure
+      if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+        throw new Error("Private key does not contain proper PEM header");
       }
+      
+      if (!privateKey.includes('-----END PRIVATE KEY-----')) {
+        throw new Error("Private key does not contain proper PEM footer");
+      }
+      
+      // Fix any spacing issues in the PEM format
+      privateKey = privateKey
+        .replace(/-----BEGIN PRIVATE KEY-----\s*/, '-----BEGIN PRIVATE KEY-----\n')
+        .replace(/\s*-----END PRIVATE KEY-----/, '\n-----END PRIVATE KEY-----');
+      
+      credentials.private_key = privateKey;
+      
+      console.log("✅ Private key format validated");
     }
   } else if (fs.existsSync(path.join(__dirname, "auth/credentials.json"))) {
     console.log("Loading credentials from file...");
@@ -73,12 +98,18 @@ try {
   }
 } catch (error) {
   console.error("ERROR: Failed to load Google credentials:", error.message);
+  console.error("Stack:", error.stack);
   process.exit(1);
 }
 
 // Create auth with proper error handling
 let auth;
 try {
+  console.log("Creating Google Auth JWT...");
+  console.log("Client email:", credentials.client_email);
+  console.log("Private key length:", credentials.private_key ? credentials.private_key.length : 0);
+  console.log("Private key starts with:", credentials.private_key ? credentials.private_key.substring(0, 50) + '...' : 'N/A');
+  
   auth = new google.auth.JWT(
     credentials.client_email,
     null,
@@ -86,10 +117,14 @@ try {
     SCOPES
   );
   
+  console.log("✅ JWT created successfully");
+  
   // Test the authentication
   auth.authorize((err) => {
     if (err) {
       console.error("ERROR: Google Auth failed:", err.message);
+      console.error("Error code:", err.code);
+      console.error("Full error:", err);
       process.exit(1);
     } else {
       console.log("✅ Google Drive authentication successful");
@@ -97,6 +132,7 @@ try {
   });
 } catch (error) {
   console.error("ERROR: Failed to create Google auth:", error.message);
+  console.error("Stack:", error.stack);
   process.exit(1);
 }
 
