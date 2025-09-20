@@ -227,13 +227,14 @@ document.addEventListener("DOMContentLoaded", () => {
               ? `<img src="/api/imageproxy/${folder.coverId}?size=w400" alt="${folder.name}" loading="lazy">` 
               : `<div class="folder-placeholder"><i class="fas fa-folder"></i></div>`
             }
-          </div>
-          <div class="gallery-item-overlay folder-overlay">
-            <div class="gallery-item-info">
-              <i class="fas fa-folder-open"></i>
-              <span class="folder-name">${folder.name}</span>
+            <div class="gallery-item-overlay folder-overlay">
+              <div class="gallery-item-info">
+                <i class="fas fa-folder-open"></i>
+                <span class="folder-name">${folder.name}</span>
+              </div>
             </div>
           </div>
+          <div class="folder-name-bar">${folder.name}</div>
         </div>
       `;
     });

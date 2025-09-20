@@ -77,6 +77,8 @@
       /* Folder styling */
       .gallery-item.folder-item {
         cursor: pointer;
+        display: flex;
+        flex-direction: column;
       }
       
       .gallery-item.folder-item:hover {
@@ -90,6 +92,7 @@
         border-radius: 12px;
         overflow: hidden;
         position: relative;
+        flex: 1;
       }
       
       .folder-placeholder {
@@ -111,6 +114,34 @@
         font-weight: 600;
         margin-left: 8px;
         font-size: 0.95rem;
+      }
+      
+      /* Folder name bar for mobile visibility */
+      .folder-name-bar {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 8px 12px;
+        margin-top: 8px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      /* Mobile specific styles */
+      @media (max-width: 768px) {
+        .folder-name-bar {
+          font-size: 0.85rem;
+          padding: 6px 10px;
+        }
+        
+        .gallery-item.folder-item {
+          margin-bottom: 8px;
+        }
       }
     </style>
   </head>
