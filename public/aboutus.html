@@ -98,67 +98,24 @@
   <section class="team-section">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Senior Coordinators</h2>
-        <p class="section-subtitle">
-          Meet the dedicated senior coordinators who guide our team and ensure every moment is captured perfectly.
-        </p>
         
-        <!-- Team Archive Selector -->
-        <div class="team-selector">
-          <label for="eventSelect" class="selector-label">Event Team:</label>
-          <select id="eventSelect" class="event-selector" onchange="switchTeam()">
-            <option value="phase-shift-2025">PHASE SHIFT 2025</option>
-            <option value="utsav-2025">UTSAV 2025</option>
-          </select>
+        
+        <!-- Event Team Selector -->
+        <div class="section-header">
+          <h2 class="section-title">Event Team</h2>
+          <p class="section-subtitle">Select the event team to view profiles.</p>
+          <div class="team-selector">
+            <label for="eventSelect" class="selector-label">Event Team:</label>
+            <select id="eventSelect" class="event-selector" onchange="switchTeam()">
+              <option value="phase-shift-2025">PHASE SHIFT 2025</option>
+              <option value="utsav-2025">UTSAV 2025</option>
+            </select>
+          </div>
         </div>
       </div>
       
       <!-- PHASE SHIFT 2025 Team (Current) -->
       <div id="phase-shift-2025-leadership" class="team-archive">
-        <!-- Senior Coordinators -->
-        <div class="team-grid">
-          <div class="team-member">
-            <div class="member-photo">
-              <img src="/img/people/mri_ps.jpeg" alt="Mridhini Madhusudan" loading="lazy">
-              <div class="member-overlay"></div>
-            </div>
-            <div class="member-info">
-              <h3 class="member-name">Mridhini Madhusudan</h3>
-              <p class="member-role">Senior Coordinator</p>
-              <p class="member-bio">Leading the team with passion and dedication to capture every memorable moment.</p>
-              <div class="member-skills">
-                <span class="skill-tag">Leadership</span>
-                <span class="skill-tag">Photography</span>
-                <span class="skill-tag">Event Management</span>
-              </div>
-              <a href="https://www.instagram.com/mridhiniiii/" class="member-social" target="_blank">
-                <i class="fab fa-instagram"></i>
-                @mridhiniiii
-              </a>
-            </div>
-          </div>
-
-          <div class="team-member">
-            <div class="member-photo">
-              <img src="/img/people/nishan_ps.jpg" alt="Nishan Kumar P" loading="lazy">
-              <div class="member-overlay"></div>
-            </div>
-            <div class="member-info">
-              <h3 class="member-name">Nishan Kumar P </h3>
-              <p class="member-role">Senior Coordinator</p>
-              <p class="member-bio">Passionate about capturing emotions and stories through the lens of creativity.</p>
-              <div class="member-skills">
-                <span class="skill-tag">Editor</span>
-                <span class="skill-tag">Team Coordination</span>
-              </div>
-              <a href="https://instagram.com/epithelialwitch" class="member-social" target="_blank">
-                <i class="fab fa-instagram"></i>
-                @epithelialwitch
-              </a>
-            </div>
-          </div>
-        </div>
-
         <!-- Club Coordinators -->
         <div class="section-header" style="margin-top: 40px;">
           <h2 class="section-title">Club Coordinators</h2>
@@ -207,14 +164,67 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- UTSAV 2025 Team (Archive) -->
-      <div id="utsav-2025-leadership" class="team-archive" style="display: none;">
+        <!-- Senior Coordinators -->
+        <div class="section-header" style="margin-top: 40px;">
+          <h2 class="section-title">Senior Coordinators</h2>
+          <p class="section-subtitle">Meet the dedicated senior coordinators who guide our team and ensure every moment is captured perfectly.</p>
+        </div>
         <div class="team-grid">
           <div class="team-member">
             <div class="member-photo">
-              <img src="/img/people/Krupanidhi.jpg" alt="Krupanidhi M S" loading="lazy">
+              <img src="/img/people/mri_ps.jpeg" alt="Mridhini Madhusudan" loading="lazy">
+              <div class="member-overlay"></div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Mridhini Madhusudan</h3>
+              <p class="member-role">Senior Coordinator</p>
+              <p class="member-bio">Leading the team with passion and dedication to capture every memorable moment.</p>
+              <div class="member-skills">
+                <span class="skill-tag">Leadership</span>
+                <span class="skill-tag">Photography</span>
+                <span class="skill-tag">Event Management</span>
+              </div>
+              <a href="https://www.instagram.com/mridhiniiii/" class="member-social" target="_blank">
+                <i class="fab fa-instagram"></i>
+                @mridhiniiii
+              </a>
+            </div>
+          </div>
+
+          <div class="team-member">
+            <div class="member-photo">
+              <img src="/img/people/nishan_ps.jpg" alt="Nishan Kumar P" loading="lazy">
+              <div class="member-overlay"></div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Nishan Kumar P </h3>
+              <p class="member-role">Senior Coordinator</p>
+              <p class="member-bio">Passionate about capturing emotions and stories through the lens of creativity.</p>
+              <div class="member-skills">
+                <span class="skill-tag">Editor</span>
+                <span class="skill-tag">Team Coordination</span>
+              </div>
+              <a href="https://instagram.com/epithelialwitch" class="member-social" target="_blank">
+                <i class="fab fa-instagram"></i>
+                @epithelialwitch
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UTSAV 2025 Team (Current) -->
+      <div id="utsav-2025-leadership" class="team-archive" style="display: block;">
+        <!-- Senior Coordinators -->
+        <div class="section-header" style="margin-top: 40px;">
+          <h2 class="section-title">Senior Coordinators</h2>
+          <p class="section-subtitle">Meet the dedicated senior coordinators who guided the team during UTSAV 2025.</p>
+        </div>
+        <div class="team-grid">
+          <div class="team-member">
+            <div class="member-photo">
+              <img src="/img/people/Krupa.jpg" alt="Krupanidhi M S" loading="lazy">
               <div class="member-overlay"></div>
             </div>
             <div class="member-info">
@@ -461,20 +471,7 @@
           </div>
         </div>
 
-        <div class="team-member">
-          <div class="member-photo">
-            <img src="/img/people/vis_ps.JPG" alt="Vishnu" loading="lazy">
-            <div class="member-overlay"></div>
-          </div>
-          <div class="member-info">
-            <h3 class="member-name">Vishnu</h3>
-            <p class="member-role">Photographer</p>
-            <div class="member-skills">
-              <span class="skill-tag">Photography</span>
-            </div>
-            
-          </div>
-        </div>
+        
 
         </div>
       </div>
@@ -682,7 +679,7 @@
       if (selectedEvent === 'phase-shift-2025') {
         document.getElementById('phase-shift-2025-leadership').style.display = 'block';
         document.getElementById('phase-shift-2025-juniors').style.display = 'block';
-        document.getElementById('phase-shift-2025-photographers').style.display = 'block';
+        document.getElementById('phase-shift-2025-photographers'). style.display = 'block';
       } else if (selectedEvent === 'utsav-2025') {
         document.getElementById('utsav-2025-leadership').style.display = 'block';
         document.getElementById('utsav-2025-juniors').style.display = 'block';
